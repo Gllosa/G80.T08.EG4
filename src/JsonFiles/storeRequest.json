@@ -1,0 +1,58 @@
+[
+  {
+    "_AccessRequest__id_document": "53935158C",
+    "_AccessRequest__name": "Marta Lopez",
+    "_AccessRequest__visitor_type": "Guest",
+    "_AccessRequest__email_address": "uc3m@gmail.com",
+    "_AccessRequest__validity": 5,
+    "_AccessRequest__time_stamp": 1614962381.90867
+  },
+  {
+    "_AccessRequest__id_document": "05270358T",
+    "_AccessRequest__name": "Pedro Martin",
+    "_AccessRequest__visitor_type": "Resident",
+    "_AccessRequest__email_address": "uc3m@gmail.com",
+    "_AccessRequest__validity": 0,
+    "_AccessRequest__time_stamp": 1614962381.90867
+  },
+  {
+    "_AccessRequest__id_document": "54678213Z",
+    "_AccessRequest__name": "Pedro Martin Martin",
+    "_AccessRequest__visitor_type": "Resident",
+    "_AccessRequest__email_address": "uc3m@gmail.com",
+    "_AccessRequest__validity": 0,
+    "_AccessRequest__time_stamp": 1614962381.90867
+  },
+  {
+    "_AccessRequest__id_document": "87654321X",
+    "_AccessRequest__name": "Juan Lopez",
+    "_AccessRequest__visitor_type": "Guest",
+    "_AccessRequest__email_address": "pepe@gmail.com",
+    "_AccessRequest__validity": 2,
+    "_AccessRequest__time_stamp": 1614962381.90867
+  },
+  {
+    "_AccessRequest__id_document": "65487321L",
+    "_AccessRequest__name": "Antonio Perez",
+    "_AccessRequest__visitor_type": "Guest",
+    "_AccessRequest__email_address": "perez@uc3m.es",
+    "_AccessRequest__validity": 3,
+    "_AccessRequest__time_stamp": 1614962381.90867
+  },
+  {
+    "_AccessRequest__id_document": "32165487X",
+    "_AccessRequest__name": "Lucas Garcia",
+    "_AccessRequest__visitor_type": "Guest",
+    "_AccessRequest__email_address": "lucas@uc3m.es",
+    "_AccessRequest__validity": 14,
+    "_AccessRequest__time_stamp": 1614962381.90867
+  },
+  {
+    "_AccessRequest__id_document": "87654123L",
+    "_AccessRequest__name": "Maria Montero",
+    "_AccessRequest__visitor_type": "Guest",
+    "_AccessRequest__email_address": "maria@uc3m.es",
+    "_AccessRequest__validity": 15,
+    "_AccessRequest__time_stamp": 1614962381.90867
+  }
+]

@@ -1,0 +1,22 @@
+FIELD;VALID INVALID;ID TEST;CRITERIA;DNI;ACCESS TYPE;NAME SURNAME;VALIDITY;email;EXPECTED RESULT
+DNI;VALID;RF1 1;All valid values for a guest;53935158C;Guest;Marta Lopez;5;uc3m@gmail.com;d2a7ca3223cd13b9a61f0e092aaaa140
+DNI;INVALID;RF1 2;INVALID LETTER;53935158D;Guest;Marta Lopez;5;uc3m@gmail.com;DNI is not valid
+DNI;INVALID;RF1 3;10 CHARACTERS;153935158C;Guest;Marta Lopez;5;uc3m@gmail.com;DNI is not valid
+DNI;INVALID;RF1 4;8 CHARACTERS;53935158;Guest;Marta Lopez;5;uc3m@gmail.com;DNI is not valid
+DNI;INVALID;RF1 5;LETTERS IN NUMERIC PART;Z5935158C;Guest;Marta Lopez;5;uc3m@gmail.com;DNI is not valid
+DNI;INVALID;RF1 6;NUMBER INSTEAD OF LETTER;539351589;Guest;Marta Lopez;5;uc3m@gmail.com;DNI is not valid
+ACCESS;VALID;RF1 7;Valid resident;05270358T;Resident;Pedro Martin;0;uc3m@gmail.com;fdf839d5e6ac1c6b7ce0625577a80568
+ACCESS;INVALID;RF1 8;OTHER VALUE DIFFERENT THAN THE VALID ONES;05270358T;Other;Pedro Martin;0;uc3m@gmail.com;type of visitor invalid
+NAME;VALID;RF1 9;NAME AND SURNAME WITH TWO SPACES;54678213Z;Resident;Pedro Martin Martin;0;uc3m@gmail.com;856934c759c5ef41266a7a8181a60851
+NAME;INVALID;RF1 10;ONLY NAME (0 SPACES);05270358T;Resident;Pedro ;0;uc3m@gmail.com;Invalid full name
+NAME;INVALID;RF1 11;INVALID CHARACTERS IN THE NAME;05270358T;Resident;P3dr% Garc$a;0;uc3m@gmail.com;Invalid full name
+EMAIL;INVALID;RF1 12;INVALID EMAIL ADDRESS;53935158C;Guest;Marta Lopez;5;uc3mgmail.com;Email invalid
+EMAIL;INVALID;RF1 13;INVALIDE EMAIL TWO @;53935158C;Guest;Marta Lopez;5;uc3m@gm@il.com;Email invalid
+VALIDITY;VALID;RF1 14;VALID GUEST (MIN);87654321X;Guest;Juan Lopez;2;pepe@gmail.com;f5c174a7e973f522073d47c8059d2d69
+VALIDITY;VALID;RF1 15;VALID GUEST (MIN+1);65487321L;Guest;Antonio Perez;3;perez@uc3m.es;4674dc4c6eb001c1308dea9d37e37e91
+VALIDITY;VALID;RF1 16;VALID GUEST (MAX-1);32165487X;Guest;Lucas Garcia;14;lucas@uc3m.es;9a81879637585dca9f04bdb5b8633b64
+VALIDITY;VALID;RF1 17;VALID GUEST (MAX);87654123L;Guest;Maria Montero;15;maria@uc3m.es;9f7a126a9e2b69218c02cc2b94e3b753
+VALIDITY;INVALID;RF1 18;INVALID GUEST (MAX+1);87654123L;Guest;Maria Montero;16;maria@uc3m.es;days invalid
+VALIDITY;INVALID;RF1 19;INVALID GUEST (MIN-1);87654321X;Guest;Juan Lopez;1;pepe@gmail.com;days invalid
+VALIDITY;INVALID;RF1 30;INVALID RESIDENT -1;05270358T;Resident;Pedro Martin;-1;uc3m@gmail.com;days invalid
+VALIDITY;INVALID;RF1 21;INVALID RESIDENT +1;05270358T;Resident;Pedro Martin;1;uc3m@gmail.com;days invalid
