@@ -6,6 +6,7 @@ import json
 from .access_manager_config import JSON_FILES_PATH
 from .access_management_exception import AccessManagementException
 
+
 class AccessKey():
     """Class representing the key for accessing the building"""
 
@@ -18,20 +19,21 @@ class AccessKey():
         justnow = datetime.utcnow()
         self.__issued_at = datetime.timestamp(justnow)
         # fix self.__issued_at only for testing 13-3-2021 18_49
-        self.__issued_at=1615627129.580297
+        self.__issued_at = 1615627129.580297
         if validity == 0:
             self.__expiration_date = 0
         else:
-            #timestamp is represneted in seconds.microseconds
-            #validity must be expressed in senconds to be added to the timestap
-            self.__expiration_date = self.__issued_at + (validity * 30 * 24 * 60 *60)
+            # timestamp is represneted in seconds.microseconds
+            # validity must be expressed in senconds to be added to the timestap
+            self.__expiration_date = self.__issued_at + (validity * 30 * 24 * 60 * 60)
         self.__key = hashlib.sha256(self.__signature_string().encode()).hexdigest()
 
     def __signature_string(self):
         """Composes the string to be used for generating the key"""
-        return "{alg:"+self.__alg + ",typ:" + self.__type + ",accesscode:"\
-               + self.__access_code+",issuedate:"+str(self.__issued_at)\
+        return "{alg:" + self.__alg + ",typ:" + self.__type + ",accesscode:" \
+               + self.__access_code + ",issuedate:" + str(self.__issued_at) \
                + ",expirationdate:" + str(self.__expiration_date) + "}"
+
     @property
     def expiration_date(self):
         """expiration_date getter"""
@@ -46,8 +48,9 @@ class AccessKey():
     def dni(self):
         """Property that represents the dni of the visitor"""
         return self.dni
+
     @dni.setter
-    def dni(self,value):
+    def dni(self, value):
         """dni setter"""
         self.__dni = value
 
@@ -55,6 +58,7 @@ class AccessKey():
     def access_code(self):
         """Property that represents the access_code of the visitor"""
         return self.__access_code
+
     @access_code.setter
     def access_code(self, value):
         """access_code setter"""
@@ -66,7 +70,7 @@ class AccessKey():
         return self.__notification_emails
 
     @notification_emails.setter
-    def notification_emails( self, value ):
+    def notification_emails(self, value):
         self.__notification_emails = value
 
     @property
@@ -78,16 +82,15 @@ class AccessKey():
         self.__key = value
 
     #    @property
-#    def key(self):
-#        """Returns the sha256 signature"""
-#        return hashlib.sha256(self.__signature_string().encode()).hexdigest()
-
+    #    def key(self):
+    #        """Returns the sha256 signature"""
+    #        return hashlib.sha256(self.__signature_string().encode()).hexdigest()
 
     def store_keys(self):
         """ srote de keys """
         myFile = JSON_FILES_PATH + "storeKeys.json"
         try:
-            with open(myFile, "r",encoding="utf-8", newline="") as file:
+            with open(myFile, "r", encoding="utf-8", newline="") as file:
                 list_keys = json.load(file)
             # append the new key
             list_keys.append(self.__dict__)

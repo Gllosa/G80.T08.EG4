@@ -25,13 +25,13 @@ class TestAccessManager(unittest.TestCase):
         # introduce a key valid and not expired and guest
         my_manager = AccessManager()
         my_manager.request_access_code("05270358T", "Pedro Martin",
-                                            "Resident", "uc3m@gmail.com", 0)
+                                       "Resident", "uc3m@gmail.com", 0)
 
         my_manager.request_access_code("87654123L", "Maria Montero",
-                                            "Guest", "maria@uc3m.es", 15)
+                                       "Guest", "maria@uc3m.es", 15)
 
         my_manager.request_access_code("53935158C", "Marta Lopez",
-                                                "Guest", "uc3m@gmail.com", 5)
+                                       "Guest", "uc3m@gmail.com", 5)
 
     @staticmethod
     def read_file():
@@ -46,18 +46,18 @@ class TestAccessManager(unittest.TestCase):
             raise AccessManagementException("JSON Decode Error - Wrong JSON Format") from ex
         return data
 
-    def test_parametrized_cases_tests( self ):
+    def test_parametrized_cases_tests(self):
         """Parametrized cases read from testingCases_RF1.csv"""
         my_cases = JSON_FILES_PATH + "testingCases_RF2.csv"
         with open(my_cases, newline='', encoding='utf-8') as csvfile:
             param_test_cases = csv.DictReader(csvfile, delimiter=';')
             my_code = AccessManager()
             for row in param_test_cases:
-                test_id = row[ 'ID TEST' ]
-                result = row[ "EXPECTED RESULT" ]
+                test_id = row['ID TEST']
+                result = row["EXPECTED RESULT"]
                 valid = row["VALID INVALID"]
                 file_name = JSON_FILES_PATH + row["FILE"]
-                if valid ==  "VALID":
+                if valid == "VALID":
                     print("Param:" + test_id + valid)
                     valor = my_code.get_access_key(file_name)
                     self.assertEqual(result, valor)
@@ -72,6 +72,7 @@ class TestAccessManager(unittest.TestCase):
                     with self.assertRaises(AccessManagementException) as c_m:
                         my_code.get_access_key(file_name)
                     self.assertEqual(c_m.exception.message, result)
+
 
 if __name__ == '__main__':
     unittest.main()

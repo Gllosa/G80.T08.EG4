@@ -8,65 +8,65 @@ from .access_key import AccessKey
 from .access_request import AccessRequest
 from .access_manager_config import JSON_FILES_PATH
 
+
 class AccessManager:
     """Class for providing the methods for managing the access to a building"""
+
     def __init__(self):
         pass
 
-
     @staticmethod
-    def validate_dni( d ):
+    def validate_dni(dni):
         """RETURN TRUE IF THE DNI IS RIGHT, OR FALSE IN OTHER CASE"""
-        c = {"0": "T", "1": "R", "2": "W", "3": "A", "4": "G", "5": "M",
-             "6": "Y", "7": "F", "8": "P", "9": "D", "10": "X", "11": "B",
-             "12": "N", "13": "J", "14": "Z", "15": "S", "16": "Q", "17": "V",
-             "18": "H", "19": "L", "20": "C", "21": "K", "22": "E"}
-        v = int(d[ 0:8 ])
-        r = str(v % 23)
-        return d[8] == c[r]
-
+        letra_control = {"0": "T", "1": "R", "2": "W", "3": "A", "4": "G", "5": "M",
+                         "6": "Y", "7": "F", "8": "P", "9": "D", "10": "X", "11": "B",
+                         "12": "N", "13": "J", "14": "Z", "15": "S", "16": "Q", "17": "V",
+                         "18": "H", "19": "L", "20": "C", "21": "K", "22": "E"}
+        numero_dni = int(dni[0:8])
+        clave_letra = str(numero_dni % 23)
+        return dni[8] == letra_control[clave_letra]
 
     @staticmethod
-    def check_dni( d ):
+    def check_dni(dni):
         """validating the dni syntax"""
-        r = r'^[0-9]{8}[A-Z]{1}$'
-        if re.fullmatch(r, d):
+        expresion_regex = r'^[0-9]{8}[A-Z]{1}$'
+        if re.fullmatch(expresion_regex, dni):
             return True
         raise AccessManagementException("DNI is not valid")
 
     @staticmethod
-    def val( d, t ):
+    def validate_days(days, guest_type):
         """validating the validity days"""
-        if not isinstance(d, int):
+        if not isinstance(days, int):
             raise AccessManagementException("days invalid")
-        if (t == "Resident" and d == 0) or (t == "Guest" and d >= 2 and d <= 15):
+        if (guest_type == "Resident" and days == 0) or (guest_type == "Guest" and 2 <= days <= 15):
             return True
         raise AccessManagementException("days invalid")
 
     @staticmethod
-    def check_ac( a ):
+    def check_access_code(access_code):
         """Validating the access code syntax"""
         regex = '[0-9a-f]{32}'
-        if re.fullmatch(regex, a):
+        if re.fullmatch(regex, access_code):
             return True
         raise AccessManagementException("access code invalid")
 
     @staticmethod
-    def check_labs( k ):
+    def check_labels(json_dict):
         """checking the labels of the input json file"""
         try:
-            k[ "AccessCode" ]
-            k[ "DNI" ]
-            k[ "NotificationMail" ]
+            json_dict["AccessCode"]
+            json_dict["DNI"]
+            json_dict["NotificationMail"]
         except KeyError as ex:
             raise AccessManagementException("JSON Decode Error - Wrong label") from ex
         return True
 
     @staticmethod
-    def read_key_file( f ):
+    def read_key_file(file):
         """read the list of stored elements"""
         try:
-            with open(f, "r", encoding="utf-8", newline="") as file:
+            with open(file, "r", encoding="utf-8", newline="") as file:
                 data = json.load(file)
         except FileNotFoundError as ex:
             raise AccessManagementException("Wrong file or file path") from ex
@@ -75,36 +75,36 @@ class AccessManager:
         return data
 
     @staticmethod
-    def find_credentials( c ):
+    def find_credentials(dni):
         """ return the access request related to a given dni"""
-        f = JSON_FILES_PATH + "storeRequest.json"
+        requests_store = JSON_FILES_PATH + "storeRequest.json"
         try:
-            with open(f, "r", encoding="utf-8", newline="") as file:
+            with open(requests_store, "r", encoding="utf-8", newline="") as file:
                 list_data = json.load(file)
         except FileNotFoundError as ex:
             raise AccessManagementException("Wrong file or file path") from ex
         except json.JSONDecodeError as ex:
             raise AccessManagementException("JSON Decode Error - Wrong JSON Format") from ex
-        for k in list_data:
-            if k["_AccessRequest__id_document"] == c:
-                return k
+        for request in list_data:
+            if request["_AccessRequest__id_document"] == dni:
+                return request
         return None
 
-    def request_access_code (self, id_card, name_surname, access_type, email_address, days):
+    def request_access_code(self, id_card, name_surname, access_type, email_address, days):
         """ this method give access to the building"""
 
-        r = r'^[a-z0-9]+[\._]?[a-z0-9]+[@](\w+[.])+\w{2,3}$'
-        if not re.fullmatch(r, email_address):
+        regex = r'^[a-z0-9]+[\._]?[a-z0-9]+[@](\w+[.])+\w{2,3}$'
+        if not re.fullmatch(regex, email_address):
             raise AccessManagementException("Email invalid")
 
         self.check_dni(id_card)
-        r = r'(Resident|Guest)'
-        if not re.fullmatch(r, access_type):
+        regex = r'(Resident|Guest)'
+        if not re.fullmatch(regex, access_type):
             raise AccessManagementException("type of visitor invalid")
-        self.val(days, access_type)
+        self.validate_days(days, access_type)
 
-        r = r'^[A-Za-z0-9]+(\s[A-Za-z0-9]+)+'
-        if not re.fullmatch(r, name_surname):
+        regex = r'^[A-Za-z0-9]+(\s[A-Za-z0-9]+)+'
+        if not re.fullmatch(regex, name_surname):
             raise AccessManagementException("Invalid full name")
 
         if self.validate_dni(id_card):
@@ -114,56 +114,56 @@ class AccessManager:
         else:
             raise AccessManagementException("DNI is not valid")
 
-    def get_access_key(self, keyfile):
-        req = self.read_key_file(keyfile)
-        #check if all labels are correct
-        self.check_labs(req)
+    def get_access_key(self, key_file):
+        request = self.read_key_file(key_file)
+        # check if all labels are correct
+        self.check_labels(request)
         # check if the values are correct
-        self.check_dni(req["DNI"])
-        self.check_ac(req[ "AccessCode" ])
+        self.check_dni(request["DNI"])
+        self.check_access_code(request["AccessCode"])
         num_emails = 0
-        for m in req["NotificationMail"]:
+        for email in request["NotificationMail"]:
             num_emails = num_emails + 1
             r = r'^[a-z0-9]+[\._]?[a-z0-9]+[@](\w+[.])+\w{2,3}$'
-            if not re.fullmatch(r, m):
+            if not re.fullmatch(r, email):
                 raise AccessManagementException("Email invalid")
         if num_emails < 1 or num_emails > 5:
             raise AccessManagementException("JSON Decode Error - Email list invalid")
-        if not self.validate_dni(req["DNI"]):
+        if not self.validate_dni(request["DNI"]):
             raise AccessManagementException("DNI is not valid")
-        # check if this dni is stored, and return in k all the info
-        k = self.find_credentials(req["DNI"])
-        if k is None:
+        # check if this dni is stored, and return in credentials all the info
+        credentials = self.find_credentials(request["DNI"])
+        if credentials is None:
             raise AccessManagementException("DNI is not found in the store")
 
-        # generate the acces code to check if it is correct
-        n = AccessRequest(k['_AccessRequest__id_document'],
-                          k['_AccessRequest__name'],
-                          k['_AccessRequest__visitor_type'],
-                          k['_AccessRequest__email_address'],
-                          k['_AccessRequest__validity'])
-        ac = n.access_code
-        if ac != req["AccessCode"]:
+        # generate the access code to check if it is correct
+        access_request = AccessRequest(credentials['_AccessRequest__id_document'],
+                                       credentials['_AccessRequest__name'],
+                                       credentials['_AccessRequest__visitor_type'],
+                                       credentials['_AccessRequest__email_address'],
+                                       credentials['_AccessRequest__validity'])
+        access_code = access_request.access_code
+        if access_code != request["AccessCode"]:
             raise AccessManagementException("access code is not correct for this DNI")
         # if everything is ok , generate the key
-        my_key= AccessKey(req["DNI"], req["AccessCode"],
-                                     req["NotificationMail"],k["_AccessRequest__validity"])
+        my_key = AccessKey(request["DNI"], request["AccessCode"],
+                           request["NotificationMail"], credentials["_AccessRequest__validity"])
         # store the key generated.
         my_key.store_keys()
         return my_key.key
 
     def open_door(self, key):
-        #check if key is complain with the  correct format
-        r = r'[0-9a-f]{64}'
-        if not re.fullmatch(r, key):
+        # check if key is complain with the  correct format
+        regex = r'[0-9a-f]{64}'
+        if not re.fullmatch(regex, key):
             raise AccessManagementException("key invalid")
-        f = JSON_FILES_PATH + "storeKeys.json"
-        l = self.read_key_file(f)
+        keys_store = JSON_FILES_PATH + "storeKeys.json"
+        keys_from_store = self.read_key_file(keys_store)
         justnow = datetime.utcnow()
         justnow_timestamp = datetime.timestamp(justnow)
-        for k in l :
-            if k["_AccessKey__key"] == key \
-                    and (k["_AccessKey__expiration_date"] > justnow_timestamp
-                         or k["_AccessKey__expiration_date"] == 0):
+        for key_in_store in keys_from_store:
+            if key_in_store["_AccessKey__key"] == key \
+                    and (key_in_store["_AccessKey__expiration_date"] > justnow_timestamp
+                         or key_in_store["_AccessKey__expiration_date"] == 0):
                 return True
         raise AccessManagementException("key is not found or is expired")
