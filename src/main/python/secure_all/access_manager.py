@@ -99,14 +99,10 @@ class AccessManager:
 
         self.validate_email(email_address)
 
-        regex = r'(Resident|Guest)'
-        if not re.fullmatch(regex, access_type):
-            raise AccessManagementException("type of visitor invalid")
+        self.validate_visitor_type(access_type)
         self.validate_days(days, access_type)
 
-        regex = r'^[A-Za-z0-9]+(\s[A-Za-z0-9]+)+'
-        if not re.fullmatch(regex, name_surname):
-            raise AccessManagementException("Invalid full name")
+        self.validate_full_name(name_surname)
 
         if self.validate_dni(id_card):
             my_request = AccessRequest(id_card, name_surname, access_type, email_address, days)
@@ -114,6 +110,18 @@ class AccessManager:
             return my_request.access_code
         else:
             raise AccessManagementException("DNI is not valid")
+
+    @staticmethod
+    def validate_full_name(name_surname):
+        regex = r'^[A-Za-z0-9]+(\s[A-Za-z0-9]+)+'
+        if not re.fullmatch(regex, name_surname):
+            raise AccessManagementException("Invalid full name")
+
+    @staticmethod
+    def validate_visitor_type(access_type):
+        regex = r'(Resident|Guest)'
+        if not re.fullmatch(regex, access_type):
+            raise AccessManagementException("type of visitor invalid")
 
     @staticmethod
     def validate_email(email_address):
