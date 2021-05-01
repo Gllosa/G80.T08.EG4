@@ -15,9 +15,13 @@ class AccessManager:
     def __init__(self):
         pass
 
-    @staticmethod
-    def validate_dni(dni):
+    def validate_dni(self, dni):
         """RETURN TRUE IF THE DNI IS RIGHT, OR FALSE IN OTHER CASE"""
+        self.validate_dni_syntax(dni)
+        return self.validate_dni_character(dni)
+
+    @staticmethod
+    def validate_dni_character(dni):
         letra_control = {"0": "T", "1": "R", "2": "W", "3": "A", "4": "G", "5": "M",
                          "6": "Y", "7": "F", "8": "P", "9": "D", "10": "X", "11": "B",
                          "12": "N", "13": "J", "14": "Z", "15": "S", "16": "Q", "17": "V",
@@ -27,7 +31,7 @@ class AccessManager:
         return dni[8] == letra_control[clave_letra]
 
     @staticmethod
-    def check_dni(dni):
+    def validate_dni_syntax(dni):
         """validating the dni syntax"""
         expresion_regex = r'^[0-9]{8}[A-Z]{1}$'
         if re.fullmatch(expresion_regex, dni):
@@ -93,11 +97,8 @@ class AccessManager:
     def request_access_code(self, id_card, name_surname, access_type, email_address, days):
         """ this method give access to the building"""
 
-        regex = r'^[a-z0-9]+[\._]?[a-z0-9]+[@](\w+[.])+\w{2,3}$'
-        if not re.fullmatch(regex, email_address):
-            raise AccessManagementException("Email invalid")
+        self.validate_email(email_address)
 
-        self.check_dni(id_card)
         regex = r'(Resident|Guest)'
         if not re.fullmatch(regex, access_type):
             raise AccessManagementException("type of visitor invalid")
@@ -114,12 +115,18 @@ class AccessManager:
         else:
             raise AccessManagementException("DNI is not valid")
 
+    @staticmethod
+    def validate_email(email_address):
+        email_pattern = r'^[a-z0-9]+[\._]?[a-z0-9]+[@](\w+[.])+\w{2,3}$'
+        if not re.fullmatch(email_pattern, email_address):
+            raise AccessManagementException("Email invalid")
+
     def get_access_key(self, key_file):
         request = self.read_key_file(key_file)
         # check if all labels are correct
         self.check_labels(request)
         # check if the values are correct
-        self.check_dni(request["DNI"])
+        self.validate_dni_syntax(request["DNI"])
         self.check_access_code(request["AccessCode"])
         num_emails = 0
         for email in request["NotificationMail"]:
