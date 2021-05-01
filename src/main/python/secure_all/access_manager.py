@@ -50,8 +50,8 @@ class AccessManager:
     @staticmethod
     def check_access_code(access_code):
         """Validating the access code syntax"""
-        regex = '[0-9a-f]{32}'
-        if re.fullmatch(regex, access_code):
+        access_code_pattern = '[0-9a-f]{32}'
+        if re.fullmatch(access_code_pattern, access_code):
             return True
         raise AccessManagementException("access code invalid")
 
