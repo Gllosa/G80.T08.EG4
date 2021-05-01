@@ -48,7 +48,7 @@ class AccessManager:
         raise AccessManagementException("days invalid")
 
     @staticmethod
-    def check_access_code(access_code):
+    def validate_access_code(access_code):
         """Validating the access code syntax"""
         access_code_pattern = '[0-9a-f]{32}'
         if re.fullmatch(access_code_pattern, access_code):
@@ -56,14 +56,14 @@ class AccessManager:
         raise AccessManagementException("access code invalid")
 
     @staticmethod
-    def check_labels(json_dict):
+    def validate_key_labels(labels_dict):
         """checking the labels of the input json file"""
-        try:
-            json_dict["AccessCode"]
-            json_dict["DNI"]
-            json_dict["NotificationMail"]
-        except KeyError as ex:
-            raise AccessManagementException("JSON Decode Error - Wrong label") from ex
+        if not ("AccessCode" in labels_dict.keys()):
+            raise AccessManagementException("JSON Decode Error - Wrong label")
+        if not ("DNI" in labels_dict.keys()):
+            raise AccessManagementException("JSON Decode Error - Wrong label")
+        if not ("NotificationMail" in labels_dict.keys()):
+            raise AccessManagementException("JSON Decode Error - Wrong label")
         return True
 
     @staticmethod
@@ -124,10 +124,39 @@ class AccessManager:
     def get_access_key(self, key_file):
         request = self.read_key_file(key_file)
         # check if all labels are correct
-        self.check_labels(request)
+        self.validate_key_labels(request)
         # check if the values are correct
-        self.validate_dni_syntax(request["DNI"])
-        self.check_access_code(request["AccessCode"])
+        self.validate_dni(request["DNI"])
+        self.validate_access_code(request["AccessCode"])
+        self.validate_email_list(request)
+        credentials = self.validate_access_code_for_dni(request["AccessCode"], request["DNI"])
+        # if everything is ok , generate the key
+        my_key = AccessKey(request["DNI"], request["AccessCode"],
+                           request["NotificationMail"], credentials["_AccessRequest__validity"])
+        # store the key generated.
+        my_key.store_keys()
+        return my_key.key
+
+    def validate_access_code_for_dni(self, request_code, dni):
+        if not self.validate_dni(dni):
+            raise AccessManagementException("DNI is not valid")
+        # check if this dni is stored, and return in credentials all the info
+        credentials = self.find_credentials(dni)
+        if credentials is None:
+            raise AccessManagementException("DNI is not found in the store")
+        # generate the access code to check if it is correct
+        access_request = AccessRequest(credentials['_AccessRequest__id_document'],
+                                       credentials['_AccessRequest__name'],
+                                       credentials['_AccessRequest__visitor_type'],
+                                       credentials['_AccessRequest__email_address'],
+                                       credentials['_AccessRequest__validity'])
+        access_code = access_request.access_code
+        if access_code != request_code:
+            raise AccessManagementException("access code is not correct for this DNI")
+        return credentials
+
+    @staticmethod
+    def validate_email_list(request):
         num_emails = 0
         for email in request["NotificationMail"]:
             num_emails = num_emails + 1
@@ -136,28 +165,6 @@ class AccessManager:
                 raise AccessManagementException("Email invalid")
         if num_emails < 1 or num_emails > 5:
             raise AccessManagementException("JSON Decode Error - Email list invalid")
-        if not self.validate_dni(request["DNI"]):
-            raise AccessManagementException("DNI is not valid")
-        # check if this dni is stored, and return in credentials all the info
-        credentials = self.find_credentials(request["DNI"])
-        if credentials is None:
-            raise AccessManagementException("DNI is not found in the store")
-
-        # generate the access code to check if it is correct
-        access_request = AccessRequest(credentials['_AccessRequest__id_document'],
-                                       credentials['_AccessRequest__name'],
-                                       credentials['_AccessRequest__visitor_type'],
-                                       credentials['_AccessRequest__email_address'],
-                                       credentials['_AccessRequest__validity'])
-        access_code = access_request.access_code
-        if access_code != request["AccessCode"]:
-            raise AccessManagementException("access code is not correct for this DNI")
-        # if everything is ok , generate the key
-        my_key = AccessKey(request["DNI"], request["AccessCode"],
-                           request["NotificationMail"], credentials["_AccessRequest__validity"])
-        # store the key generated.
-        my_key.store_keys()
-        return my_key.key
 
     def open_door(self, key):
         # check if key is complain with the  correct format
