@@ -7,55 +7,15 @@ from .access_management_exception import AccessManagementException
 from .access_key import AccessKey
 from .access_request import AccessRequest
 from .access_manager_config import JSON_FILES_PATH
-
+from .data.attribute_dni import Dni
+from .data.attribute_access_code import AccessCode
+from .data.attribute_key_labels import KeyLabels
 
 class AccessManager:
     """Class for providing the methods for managing the access to a building"""
 
     def __init__(self):
         pass
-
-    def validate_dni(self, dni):
-        """RETURN TRUE IF THE DNI IS RIGHT, OR FALSE IN OTHER CASE"""
-        self.validate_dni_syntax(dni)
-        return self.validate_dni_character(dni)
-
-    @staticmethod
-    def validate_dni_character(dni):
-        letra_control = {"0": "T", "1": "R", "2": "W", "3": "A", "4": "G", "5": "M",
-                         "6": "Y", "7": "F", "8": "P", "9": "D", "10": "X", "11": "B",
-                         "12": "N", "13": "J", "14": "Z", "15": "S", "16": "Q", "17": "V",
-                         "18": "H", "19": "L", "20": "C", "21": "K", "22": "E"}
-        numero_dni = int(dni[0:8])
-        clave_letra = str(numero_dni % 23)
-        return dni[8] == letra_control[clave_letra]
-
-    @staticmethod
-    def validate_dni_syntax(dni):
-        """validating the dni syntax"""
-        expresion_regex = r'^[0-9]{8}[A-Z]{1}$'
-        if re.fullmatch(expresion_regex, dni):
-            return True
-        raise AccessManagementException("DNI is not valid")
-
-    @staticmethod
-    def validate_access_code(access_code):
-        """Validating the access code syntax"""
-        access_code_pattern = '[0-9a-f]{32}'
-        if re.fullmatch(access_code_pattern, access_code):
-            return True
-        raise AccessManagementException("access code invalid")
-
-    @staticmethod
-    def validate_key_labels(labels_dict):
-        """checking the labels of the input json file"""
-        if not ("AccessCode" in labels_dict.keys()):
-            raise AccessManagementException("JSON Decode Error - Wrong label")
-        if not ("DNI" in labels_dict.keys()):
-            raise AccessManagementException("JSON Decode Error - Wrong label")
-        if not ("NotificationMail" in labels_dict.keys()):
-            raise AccessManagementException("JSON Decode Error - Wrong label")
-        return True
 
     @staticmethod
     def read_key_file(file):
@@ -96,10 +56,10 @@ class AccessManager:
     def get_access_key(self, key_file):
         request = self.read_key_file(key_file)
         # check if all labels are correct
-        self.validate_key_labels(request)
+        KeyLabels(request)
         # check if the values are correct
-        self.validate_dni(request["DNI"])
-        self.validate_access_code(request["AccessCode"])
+        Dni(request["DNI"])
+        AccessCode(request["AccessCode"])
         self.validate_email_list(request)
         credentials = self.validate_access_code_for_dni(request["AccessCode"], request["DNI"])
         # if everything is ok , generate the key
@@ -110,8 +70,7 @@ class AccessManager:
         return my_key.key
 
     def validate_access_code_for_dni(self, request_code, dni):
-        if not self.validate_dni(dni):
-            raise AccessManagementException("DNI is not valid")
+        Dni(dni)
         # check if this dni is stored, and return in credentials all the info
         credentials = self.find_credentials(dni)
         if credentials is None:
