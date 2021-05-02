@@ -3,17 +3,20 @@ import json
 import hashlib
 from .access_manager_config import JSON_FILES_PATH
 from .access_management_exception import AccessManagementException
-
+from .data.attribute_full_name import FullName
+from .data.attribute_email import Email
+from .data.attribute_visitor_type import VisitorType
+from .data.attribute_validity import Validity
 
 class AccessRequest:
     """Class representing the access request"""
 
     def __init__(self, id_document, full_name, visitor_type, email_address, validity):
         self.__id_document = id_document
-        self.__name = full_name
-        self.__visitor_type = visitor_type
-        self.__email_address = email_address
-        self.__validity = validity
+        self.__name = FullName(full_name).value
+        self.__visitor_type = VisitorType(visitor_type).value
+        self.__email_address = Email(email_address).value
+        self.__validity = Validity(validity, visitor_type).value
         # justnow = datetime.utcnow()
         # self.__time_stamp = datetime.timestamp(justnow)
         # only for testing , fix de time stamp to this value 1614962381.90867 , 5/3/2020 18_40

@@ -1,7 +1,7 @@
 from .attribute import Attribute
 
 
-class FullName(Attribute):
+class VisitorType(Attribute):
     def __init__(self, attr_value):
-        super().__init__(attr_value, r'^[A-Za-z0-9]+(\s[A-Za-z0-9]+)+', "Invalid full name")
+        super().__init__(attr_value, r'(Resident|Guest)', "type of visitor invalid")
         self.attr_value = self._validate(attr_value)

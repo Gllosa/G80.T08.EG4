@@ -39,15 +39,6 @@ class AccessManager:
         raise AccessManagementException("DNI is not valid")
 
     @staticmethod
-    def validate_days(days, guest_type):
-        """validating the validity days"""
-        if not isinstance(days, int):
-            raise AccessManagementException("days invalid")
-        if (guest_type == "Resident" and days == 0) or (guest_type == "Guest" and 2 <= days <= 15):
-            return True
-        raise AccessManagementException("days invalid")
-
-    @staticmethod
     def validate_access_code(access_code):
         """Validating the access code syntax"""
         access_code_pattern = '[0-9a-f]{32}'
@@ -97,37 +88,12 @@ class AccessManager:
     def request_access_code(self, id_card, name_surname, access_type, email_address, days):
         """ this method give access to the building"""
 
-        self.validate_email(email_address)
-
-        self.validate_visitor_type(access_type)
-        self.validate_days(days, access_type)
-
-        self.validate_full_name(name_surname)
-
         if self.validate_dni(id_card):
             my_request = AccessRequest(id_card, name_surname, access_type, email_address, days)
             my_request.add_credentials()
             return my_request.access_code
         else:
             raise AccessManagementException("DNI is not valid")
-
-    @staticmethod
-    def validate_full_name(name_surname):
-        regex = r'^[A-Za-z0-9]+(\s[A-Za-z0-9]+)+'
-        if not re.fullmatch(regex, name_surname):
-            raise AccessManagementException("Invalid full name")
-
-    @staticmethod
-    def validate_visitor_type(access_type):
-        regex = r'(Resident|Guest)'
-        if not re.fullmatch(regex, access_type):
-            raise AccessManagementException("type of visitor invalid")
-
-    @staticmethod
-    def validate_email(email_address):
-        email_pattern = r'^[a-z0-9]+[\._]?[a-z0-9]+[@](\w+[.])+\w{2,3}$'
-        if not re.fullmatch(email_pattern, email_address):
-            raise AccessManagementException("Email invalid")
 
     def get_access_key(self, key_file):
         request = self.read_key_file(key_file)
