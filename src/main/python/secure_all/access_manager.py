@@ -85,15 +85,13 @@ class AccessManager:
                 return request
         return None
 
-    def request_access_code(self, id_card, name_surname, access_type, email_address, days):
+    @staticmethod
+    def request_access_code(id_card, name_surname, access_type, email_address, days):
         """ this method give access to the building"""
 
-        if self.validate_dni(id_card):
-            my_request = AccessRequest(id_card, name_surname, access_type, email_address, days)
-            my_request.add_credentials()
-            return my_request.access_code
-        else:
-            raise AccessManagementException("DNI is not valid")
+        my_request = AccessRequest(id_card, name_surname, access_type, email_address, days)
+        my_request.add_credentials()
+        return my_request.access_code
 
     def get_access_key(self, key_file):
         request = self.read_key_file(key_file)

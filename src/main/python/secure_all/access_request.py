@@ -7,12 +7,14 @@ from .data.attribute_full_name import FullName
 from .data.attribute_email import Email
 from .data.attribute_visitor_type import VisitorType
 from .data.attribute_validity import Validity
+from .data.attribute_dni import Dni
+
 
 class AccessRequest:
     """Class representing the access request"""
 
     def __init__(self, id_document, full_name, visitor_type, email_address, validity):
-        self.__id_document = id_document
+        self.__id_document = Dni(id_document).value
         self.__name = FullName(full_name).value
         self.__visitor_type = VisitorType(visitor_type).value
         self.__email_address = Email(email_address).value
