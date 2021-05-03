@@ -5,17 +5,20 @@ import json
 
 from .access_manager_config import JSON_FILES_PATH
 from .access_management_exception import AccessManagementException
+from .data.attribute_access_code import AccessCode
+from .data.attribute_dni import Dni
+from .data.attribute_notification_emails import NotificationEmails
 
 
-class AccessKey():
+class AccessKey:
     """Class representing the key for accessing the building"""
 
     def __init__(self, dni, access_code, notification_emails, validity):
         self.__alg = "SHA-256"
         self.__type = "DS"
-        self.__dni = dni
-        self.__access_code = access_code
-        self.__notification_emails = notification_emails
+        self.__dni = Dni(dni).value
+        self.__access_code = AccessCode(access_code).value
+        self.__notification_emails = NotificationEmails(notification_emails).value
         justnow = datetime.utcnow()
         self.__issued_at = datetime.timestamp(justnow)
         # fix self.__issued_at only for testing 13-3-2021 18_49

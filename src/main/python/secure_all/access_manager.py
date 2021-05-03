@@ -58,10 +58,8 @@ class AccessManager:
         request = self.read_key_file(key_file)
         # check if all labels are correct
         KeyLabels(request)
-        # check if the values are correct
-        Dni(request["DNI"])
+        # Comprobar que el codigo de acceso es valido
         AccessCode(request["AccessCode"])
-        self.validate_email_list(request)
         credentials = self.validate_access_code_for_dni(request["AccessCode"], request["DNI"])
         # if everything is ok , generate the key
         my_key = AccessKey(request["DNI"], request["AccessCode"],
@@ -71,6 +69,7 @@ class AccessManager:
         return my_key.key
 
     def validate_access_code_for_dni(self, request_code, dni):
+        # Comrpobar que el dni es correcto
         Dni(dni)
         # check if this dni is stored, and return in credentials all the info
         credentials = self.find_credentials(dni)
@@ -86,17 +85,6 @@ class AccessManager:
         if access_code != request_code:
             raise AccessManagementException("access code is not correct for this DNI")
         return credentials
-
-    @staticmethod
-    def validate_email_list(request):
-        num_emails = 0
-        for email in request["NotificationMail"]:
-            num_emails = num_emails + 1
-            r = r'^[a-z0-9]+[\._]?[a-z0-9]+[@](\w+[.])+\w{2,3}$'
-            if not re.fullmatch(r, email):
-                raise AccessManagementException("Email invalid")
-        if num_emails < 1 or num_emails > 5:
-            raise AccessManagementException("JSON Decode Error - Email list invalid")
 
     def open_door(self, key):
         # check if key is complain with the  correct format
