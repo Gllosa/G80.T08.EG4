@@ -11,6 +11,7 @@ from .data.attribute_dni import Dni
 from .data.attribute_access_code import AccessCode
 from .data.attribute_key_labels import KeyLabels
 
+
 class AccessManager:
     """Class for providing the methods for managing the access to a building"""
 
