@@ -10,18 +10,18 @@ from secure_all.data.attribute_dni import Dni
 from secure_all.data.attribute_notification_emails import NotificationEmails
 from secure_all.storage.keys_json_store import KeysJsonStore
 from secure_all import AccessRequest
+from secure_all.parser.key_json_parser import KeyJsonParser
 
 
 class AccessKey:
     """Class representing the key for accessing the building"""
 
     def __init__(self, key_file):
-        request = self.read_key_file(key_file)
+
+        request = KeyJsonParser(key_file).json_content
         # check if all labels are correct
-        self.validate_key_labels(request)
         # Comprobar que el codigo de acceso es valido
-        AccessCode(request["AccessCode"])
-        credentials = self.validate_access_code_for_dni(request["AccessCode"], request["DNI"])
+        credentials = self.validate_access_code_for_dni(AccessCode(request["AccessCode"]).value, request["DNI"])
 
         self.__alg = "SHA-256"
         self.__type = "DS"
@@ -45,18 +45,6 @@ class AccessKey:
         return "{alg:" + self.__alg + ",typ:" + self.__type + ",accesscode:" \
                + self.__access_code + ",issuedate:" + str(self.__issued_at) \
                + ",expirationdate:" + str(self.__expiration_date) + "}"
-
-    @staticmethod
-    def read_key_file(file):
-        """read the list of stored elements"""
-        try:
-            with open(file, "r", encoding="utf-8", newline="") as file:
-                data = json.load(file)
-        except FileNotFoundError as ex:
-            raise AccessManagementException("Wrong file or file path") from ex
-        except json.JSONDecodeError as ex:
-            raise AccessManagementException("JSON Decode Error - Wrong JSON Format") from ex
-        return data
 
     def validate_access_code_for_dni(self, request_code, dni):
         # Comrpobar que el dni es correcto
@@ -91,17 +79,6 @@ class AccessKey:
             if request["_AccessRequest__id_document"] == dni:
                 return request
         return None
-
-    @staticmethod
-    def validate_key_labels(labels_dict):
-        error_message = "JSON Decode Error - Wrong label"
-        if not ("AccessCode" in labels_dict.keys()):
-            raise AccessManagementException(error_message)
-        if not ("DNI" in labels_dict.keys()):
-            raise AccessManagementException(error_message)
-        if not ("NotificationMail" in labels_dict.keys()):
-            raise AccessManagementException(error_message)
-        return True
 
     @property
     def expiration_date(self):
