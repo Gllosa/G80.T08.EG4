@@ -3,11 +3,12 @@ from datetime import datetime
 import hashlib
 import json
 
-from .access_manager_config import JSON_FILES_PATH
-from .access_management_exception import AccessManagementException
-from .data.attribute_access_code import AccessCode
-from .data.attribute_dni import Dni
-from .data.attribute_notification_emails import NotificationEmails
+from secure_all.cfg.access_manager_config import JSON_FILES_PATH
+from secure_all.exception.access_management_exception import AccessManagementException
+from secure_all.data.attribute_access_code import AccessCode
+from secure_all.data.attribute_dni import Dni
+from secure_all.data.attribute_notification_emails import NotificationEmails
+from secure_all.storage.keys_json_store import KeysJsonStore
 
 
 class AccessKey:
@@ -91,19 +92,6 @@ class AccessKey:
 
     def store_keys(self):
         """ srote de keys """
-        myFile = JSON_FILES_PATH + "storeKeys.json"
-        try:
-            with open(myFile, "r", encoding="utf-8", newline="") as file:
-                list_keys = json.load(file)
-            # append the new key
-            list_keys.append(self.__dict__)
-            # write all the keys in the file
-            with open(myFile, "w", encoding="utf-8", newline="") as file:
-                json.dump(list_keys, file, indent=2)
-        except FileNotFoundError as ex:
-            # if file is not found, store the first key
-            with open(myFile, "x", encoding="utf-8", newline="") as file:
-                data_key = [self.__dict__]
-                json.dump(data_key, file, indent=2)
-        except json.JSONDecodeError as ex:
-            raise AccessManagementException("JSON Decode Error - Wrong JSON Format") from ex
+        key_store = KeysJsonStore()
+        key_store.add_item(self)
+        key_store.save_store()

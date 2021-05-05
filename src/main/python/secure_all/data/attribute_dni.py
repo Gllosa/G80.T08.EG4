@@ -1,7 +1,7 @@
 import re
 
 from .attribute import Attribute
-from secure_all.access_management_exception import AccessManagementException
+from secure_all.exception.access_management_exception import AccessManagementException
 
 
 class Dni(Attribute):

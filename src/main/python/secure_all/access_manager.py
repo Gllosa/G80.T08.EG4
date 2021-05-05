@@ -3,10 +3,10 @@ import re
 import json
 from datetime import datetime
 
-from .access_management_exception import AccessManagementException
-from .access_key import AccessKey
-from .access_request import AccessRequest
-from .access_manager_config import JSON_FILES_PATH
+from secure_all.exception.access_management_exception import AccessManagementException
+from secure_all.data.access_key import AccessKey
+from secure_all.data.access_request import AccessRequest
+from secure_all.cfg.access_manager_config import JSON_FILES_PATH
 from .data.attribute_dni import Dni
 from .data.attribute_access_code import AccessCode
 from .data.attribute_key_labels import KeyLabels
@@ -41,7 +41,7 @@ class AccessManager:
             raise AccessManagementException("Wrong file or file path") from ex
         except json.JSONDecodeError as ex:
             raise AccessManagementException("JSON Decode Error - Wrong JSON Format") from ex
-        for request in list_data:
+        for request in list_data: 
             if request["_AccessRequest__id_document"] == dni:
                 return request
         return None
@@ -51,7 +51,7 @@ class AccessManager:
         """ this method give access to the building"""
 
         my_request = AccessRequest(id_card, name_surname, access_type, email_address, days)
-        my_request.add_credentials()
+        my_request.store_request()
         return my_request.access_code
 
     def get_access_key(self, key_file):

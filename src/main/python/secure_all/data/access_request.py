@@ -1,13 +1,14 @@
 """MODULE: access_request. Contains the access request class"""
 import json
 import hashlib
-from .access_manager_config import JSON_FILES_PATH
-from .access_management_exception import AccessManagementException
-from .data.attribute_full_name import FullName
-from .data.attribute_email import Email
-from .data.attribute_visitor_type import VisitorType
-from .data.attribute_validity import Validity
-from .data.attribute_dni import Dni
+from secure_all.cfg.access_manager_config import JSON_FILES_PATH
+from secure_all.exception.access_management_exception import AccessManagementException
+from secure_all.data.attribute_full_name import FullName
+from secure_all.data.attribute_email import Email
+from secure_all.data.attribute_visitor_type import VisitorType
+from secure_all.data.attribute_validity import Validity
+from secure_all.data.attribute_dni import Dni
+from secure_all.storage.requests_json_store import RequestJsonStore
 
 
 class AccessRequest:
@@ -75,34 +76,7 @@ class AccessRequest:
         """Property for obtaining the access code according the requirements"""
         return hashlib.md5(self.__str__().encode()).hexdigest()
 
-    @staticmethod
-    def read_credentials():
-        """Returns the list of AccessRequests from the store"""
-        f = JSON_FILES_PATH + "storeRequest.json"
-        try:
-            with open(f, "r", encoding="utf-8", newline="") as file:
-                data = json.load(file)
-        except FileNotFoundError as ex:
-            raise AccessManagementException("Wrong file or file path") from ex
-        except json.JSONDecodeError as ex:
-            raise AccessManagementException("JSON Decode Error - Wrong JSON Format") from ex
-        return data
-
-    def add_credentials(self):
-        """Save the access requests in hte store"""
-        myFile = JSON_FILES_PATH + "storeRequest.json"
-        try:
-            # if file is not exist store the first item
-            with open(myFile, "x", encoding="utf-8", newline="") as file:
-                data = [self.__dict__]
-                json.dump(data, file, indent=2)
-        except FileExistsError as ex:
-            # if file exists read the file and add a new item
-            l = self.read_credentials()
-            # check if this DNI is not stored
-            for k in l:
-                if k["_AccessRequest__id_document"] == self.id_document:
-                    raise AccessManagementException("id_document found in storeRequest") from ex
-            l.append(self.__dict__)
-            with open(myFile, "w", encoding="utf-8", newline="") as file:
-                json.dump(l, file, indent=2)
+    def store_request(self):
+        request_store = RequestJsonStore()
+        request_store.add_item(self)
+        del request_store
