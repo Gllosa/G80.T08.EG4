@@ -28,6 +28,7 @@ class AccessManager:
             raise AccessManagementException("Wrong file or file path") from ex
         except json.JSONDecodeError as ex:
             raise AccessManagementException("JSON Decode Error - Wrong JSON Format") from ex
+        print(data)
         return data
 
     @staticmethod
@@ -55,15 +56,7 @@ class AccessManager:
         return my_request.access_code
 
     def get_access_key(self, key_file):
-        request = self.read_key_file(key_file)
-        # check if all labels are correct
-        KeyLabels(request)
-        # Comprobar que el codigo de acceso es valido
-        AccessCode(request["AccessCode"])
-        credentials = self.validate_access_code_for_dni(request["AccessCode"], request["DNI"])
-        # if everything is ok , generate the key
-        my_key = AccessKey(request["DNI"], request["AccessCode"],
-                           request["NotificationMail"], credentials["_AccessRequest__validity"])
+        my_key = AccessKey(key_file)
         # store the key generated.
         my_key.store_keys()
         return my_key.key
