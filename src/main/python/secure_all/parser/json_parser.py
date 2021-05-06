@@ -4,6 +4,9 @@ from secure_all.exception.access_management_exception import AccessManagementExc
 
 class JsonParser:
     keys = []
+    _KEY_ERROR_WRONG_FILE = "Wrong file or file path"
+    _ERROR_JSON_DECODER = "JSON Decode Error - Wrong JSON Format"
+    _KEY_ERROR_WRONG_LABEL = "JSON Decode Error - Wrong label"
 
     def __init__(self, file):
         self._file = file
@@ -15,15 +18,15 @@ class JsonParser:
             with open(self._file, "r", encoding="utf-8", newline="") as file:
                 data = json.load(file)
         except FileNotFoundError as ex:
-            raise AccessManagementException("Wrong file or file path") from ex
+            raise AccessManagementException(self._KEY_ERROR_WRONG_FILE) from ex
         except json.JSONDecodeError as ex:
-            raise AccessManagementException("JSON Decode Error - Wrong JSON Format") from ex
+            raise AccessManagementException(self._ERROR_JSON_DECODER) from ex
         return data
 
     def _validate_json(self):
         for key in self.keys:
             if key not in self._json_content:
-                raise AccessManagementException("JSON Decode Error - Wrong label")
+                raise AccessManagementException(self._KEY_ERROR_WRONG_LABEL)
 
     @property
     def json_content(self):
