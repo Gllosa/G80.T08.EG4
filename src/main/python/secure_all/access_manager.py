@@ -6,27 +6,42 @@ from secure_all.storage.keys_json_store import KeysJsonStore
 
 class AccessManager:
     """Class for providing the methods for managing the access to a building"""
+    instance = None
 
-    def __init__(self):
-        pass
+    def __new__(cls):
+        if not AccessManager.instance:
+            AccessManager.instance = AccessManager.AccessManagerPrivate()
+        return AccessManager.instance
 
-    @staticmethod
-    def request_access_code(id_card, name_surname, access_type, email_address, days):
-        """ this method give access to the building"""
+    def __getattr__(self, item):
+        return getattr(self.instance, item)
 
-        my_request = AccessRequest(id_card, name_surname, access_type, email_address, days)
-        my_request.store_request()
-        return my_request.access_code
+    def __setattr__(self, key, value):
+        return setattr(self.instance, key, value)
 
-    @staticmethod
-    def get_access_key(key_file):
-        """Devuelve la llave"""
-        my_key = AccessKey(key_file)
-        my_key.store_keys()
-        return my_key.key
+    class AccessManagerPrivate:
+        """Class for providing the methods for managing the access to a building"""
 
-    @staticmethod
-    def open_door(key):
-        """Abre la puerta con una llave"""
-        keys_store = KeysJsonStore()
-        return keys_store.is_valid(key)
+        def __init__(self):
+            pass
+
+        @staticmethod
+        def request_access_code(id_card, name_surname, access_type, email_address, days):
+            """ this method give access to the building"""
+
+            my_request = AccessRequest(id_card, name_surname, access_type, email_address, days)
+            my_request.store_request()
+            return my_request.access_code
+
+        @staticmethod
+        def get_access_key(key_file):
+            """Devuelve la llave"""
+            my_key = AccessKey(key_file)
+            my_key.store_keys()
+            return my_key.key
+
+        @staticmethod
+        def open_door(key):
+            """Abre la puerta con una llave"""
+            keys_store = KeysJsonStore()
+            return keys_store.is_valid(key)
