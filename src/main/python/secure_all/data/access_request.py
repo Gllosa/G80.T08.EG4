@@ -1,8 +1,7 @@
 """MODULE: access_request. Contains the access request class"""
 import json
 import hashlib
-from secure_all.cfg.access_manager_config import JSON_FILES_PATH
-from secure_all.exception.access_management_exception import AccessManagementException
+
 from secure_all.data.attribute_full_name import FullName
 from secure_all.data.attribute_email import Email
 from secure_all.data.attribute_visitor_type import VisitorType
@@ -24,6 +23,12 @@ class AccessRequest:
         # self.__time_stamp = datetime.timestamp(justnow)
         # only for testing , fix de time stamp to this value 1614962381.90867 , 5/3/2020 18_40
         self.__time_stamp = 1614962381.90867
+
+    def store_request(self):
+        """Guarda una peticion en el Json correspondiente"""
+        request_store = RequestJsonStore()
+        request_store.add_item(self)
+        del request_store
 
     def __str__(self):
         return "AccessRequest:" + json.dumps(self.__dict__)
@@ -75,8 +80,3 @@ class AccessRequest:
     def access_code(self):
         """Property for obtaining the access code according the requirements"""
         return hashlib.md5(self.__str__().encode()).hexdigest()
-
-    def store_request(self):
-        request_store = RequestJsonStore()
-        request_store.add_item(self)
-        del request_store

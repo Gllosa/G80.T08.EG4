@@ -15,13 +15,18 @@ from secure_all.parser.key_json_parser import KeyJsonParser
 
 class AccessKey:
     """Class representing the key for accessing the building"""
+    ERROR_DNI_NOT_FOUND = "DNI is not found in the store"
+    ERROR_ACCESS_CODE_WRONG = "access code is not correct for this DNI"
+    ERROR_WRONG_FILE = "Wrong file or file path"
+    JSON_DECODE_ERROR = "JSON Decode Error - Wrong JSON Format"
 
     def __init__(self, key_file):
 
         request = KeyJsonParser(key_file).json_content
         # check if all labels are correct
         # Comprobar que el codigo de acceso es valido
-        credentials = self.validate_access_code_for_dni(AccessCode(request["AccessCode"]).value, request["DNI"])
+        credentials = self.validate_access_code_for_dni(AccessCode(request["AccessCode"]).value,
+                                                        request["DNI"])
 
         self.__alg = "SHA-256"
         self.__type = "DS"
@@ -37,7 +42,8 @@ class AccessKey:
         else:
             # timestamp is represneted in seconds.microseconds
             # validity must be expressed in senconds to be added to the timestap
-            self.__expiration_date = self.__issued_at + (credentials["_AccessRequest__validity"] * 30 * 24 * 60 * 60)
+            tiempo_validez = credentials["_AccessRequest__validity"] * 30 * 24 * 60 * 60
+            self.__expiration_date = self.__issued_at + tiempo_validez
         self.__key = hashlib.sha256(self.__signature_string().encode()).hexdigest()
 
     def __signature_string(self):
@@ -47,12 +53,12 @@ class AccessKey:
                + ",expirationdate:" + str(self.__expiration_date) + "}"
 
     def validate_access_code_for_dni(self, request_code, dni):
-        # Comrpobar que el dni es correcto
-        Dni(dni)
+        """Valida un codiog de acceso para un determinado dni"""
+        # Comprobar que el dni es correcto
         # check if this dni is stored, and return in credentials all the info
-        credentials = self.find_credentials(dni)
+        credentials = self.find_credentials(Dni(dni).value)
         if credentials is None:
-            raise AccessManagementException("DNI is not found in the store")
+            raise AccessManagementException(self.ERROR_DNI_NOT_FOUND)
         # generate the access code to check if it is correct
         access_request = AccessRequest(credentials['_AccessRequest__id_document'],
                                        credentials['_AccessRequest__name'],
@@ -61,24 +67,29 @@ class AccessKey:
                                        credentials['_AccessRequest__validity'])
         access_code = access_request.access_code
         if access_code != request_code:
-            raise AccessManagementException("access code is not correct for this DNI")
+            raise AccessManagementException(self.ERROR_ACCESS_CODE_WRONG)
         return credentials
 
-    @staticmethod
-    def find_credentials(dni):
+    def find_credentials(self, dni):
         """ return the access request related to a given dni"""
         requests_store = JSON_FILES_PATH + "storeRequest.json"
         try:
             with open(requests_store, "r", encoding="utf-8", newline="") as file:
                 list_data = json.load(file)
         except FileNotFoundError as ex:
-            raise AccessManagementException("Wrong file or file path") from ex
+            raise AccessManagementException(self.ERROR_WRONG_FILE) from ex
         except json.JSONDecodeError as ex:
-            raise AccessManagementException("JSON Decode Error - Wrong JSON Format") from ex
+            raise AccessManagementException(self.JSON_DECODE_ERROR) from ex
         for request in list_data:
             if request["_AccessRequest__id_document"] == dni:
                 return request
         return None
+
+    def store_keys(self):
+        """ srote de keys """
+        key_store = KeysJsonStore()
+        key_store.add_item(self)
+        key_store.save_store()
 
     @property
     def expiration_date(self):
@@ -121,6 +132,7 @@ class AccessKey:
 
     @property
     def key(self):
+        """Getter de key"""
         return self.__key
 
     @key.setter
@@ -131,9 +143,3 @@ class AccessKey:
     #    def key(self):
     #        """Returns the sha256 signature"""
     #        return hashlib.sha256(self.__signature_string().encode()).hexdigest()
-
-    def store_keys(self):
-        """ srote de keys """
-        key_store = KeysJsonStore()
-        key_store.add_item(self)
-        key_store.save_store()

@@ -20,11 +20,13 @@ class AccessManager:
 
     @staticmethod
     def get_access_key(key_file):
+        """Devuelve la llave"""
         my_key = AccessKey(key_file)
         my_key.store_keys()
         return my_key.key
 
     @staticmethod
     def open_door(key):
+        """Abre la puerta con una llave"""
         keys_store = KeysJsonStore()
         return keys_store.is_valid(key)

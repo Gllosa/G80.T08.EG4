@@ -1,8 +1,10 @@
+"""Module"""
 import json
 from secure_all.exception.access_management_exception import AccessManagementException
 
 
 class JsonParser:
+    """Clase para manejar los archivos Json"""
     keys = []
     _KEY_ERROR_WRONG_FILE = "Wrong file or file path"
     _ERROR_JSON_DECODER = "JSON Decode Error - Wrong JSON Format"
@@ -30,4 +32,5 @@ class JsonParser:
 
     @property
     def json_content(self):
+        """Getter de json_content"""
         return self._json_content

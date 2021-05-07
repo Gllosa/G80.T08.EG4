@@ -1,8 +1,10 @@
-from .attribute import Attribute
+"""Module"""
 from secure_all.exception.access_management_exception import AccessManagementException
+from .attribute import Attribute
 
 
 class Validity(Attribute):
+    """Clase para validar la validez"""
     def __init__(self, attr_value, guest_type):
         super().__init__(attr_value, r'', "days invalid")
         self.guest_type = guest_type
