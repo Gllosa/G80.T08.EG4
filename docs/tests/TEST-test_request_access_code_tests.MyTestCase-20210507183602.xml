@@ -1,0 +1,4 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="test_request_access_code_tests.MyTestCase-20210507183602" tests="1" file="test_request_access_code_tests.py" time="0.016" timestamp="2021-05-07T18:36:02" failures="0" errors="0" skipped="0">
+	<testcase classname="test_request_access_code_tests.MyTestCase" name="test_parametrized_cases_tests" time="0.016" timestamp="2021-05-07T18:36:02"/>
+</testsuite>
